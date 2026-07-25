@@ -1,0 +1,41 @@
+[2026-07-13 21:49:53] [INFO] User 'admin' (role 1) logged in.
+[2026-07-13 22:00:25] [INFO] Admin admin set application APP-000002 to approved.
+[2026-07-13 22:45:58] [INFO] User 'admin' logged out.
+[2026-07-13 22:46:10] [INFO] User 'admin' (role 1) logged in.
+[2026-07-13 22:46:29] [INFO] User 'admin' logged out.
+[2026-07-13 22:46:36] [INFO] User 'admin' (role 1) logged in.
+[2026-07-13 22:46:41] [INFO] User 'admin' logged out.
+[2026-07-13 22:47:28] [INFO] User 'fatema.begum' (role 4) logged in.
+[2026-07-13 22:51:52] [INFO] User 'fatema.begum' logged out.
+[2026-07-13 23:01:12] [INFO] User 'admin' (role 1) logged in.
+[2026-07-13 23:04:54] [INFO] User 'admin' logged out.
+[2026-07-13 23:05:04] [INFO] User 'fatema.begum' (role 4) logged in.
+[2026-07-13 23:05:23] [INFO] User 'fatema.begum' logged out.
+[2026-07-13 23:05:42] [INFO] User 'admin' (role 1) logged in.
+[2026-07-14 00:27:54] [INFO] User 'cashier1' (role 5) logged in.
+[2026-07-14 00:29:32] [INFO] User 'cashier1' logged out.
+[2026-07-14 00:30:00] [INFO] User 'officer1' (role 3) logged in.
+[2026-07-14 00:32:45] [INFO] User 'officer1' logged out.
+[2026-07-14 00:33:05] [INFO] User 'admin' (role 1) logged in.
+[2026-07-14 00:36:03] [INFO] User 'admin' logged out.
+[2026-07-14 00:36:26] [INFO] User 'manager1' (role 2) logged in.
+[2026-07-14 00:36:38] [INFO] User 'manager1' logged out.
+[2026-07-14 00:37:14] [INFO] User 'officer1' (role 3) logged in.
+[2026-07-14 00:38:25] [INFO] Officer officer1 submitted application APP-000004.
+[2026-07-14 00:38:31] [INFO] User 'officer1' logged out.
+[2026-07-14 00:38:37] [INFO] User 'manager1' (role 2) logged in.
+[2026-07-14 00:39:20] [INFO] User 'manager1' logged out.
+[2026-07-14 00:39:55] [INFO] User 'admin' (role 1) logged in.
+[2026-07-14 00:40:39] [INFO] User 'admin' logged out.
+[2026-07-14 00:40:43] [INFO] User 'officer1' (role 3) logged in.
+[2026-07-14 00:42:25] [INFO] Officer officer1 submitted application APP-000005.
+[2026-07-14 00:42:38] [INFO] User 'officer1' logged out.
+[2026-07-14 00:42:47] [INFO] User 'manager1' (role 2) logged in.
+[2026-07-14 00:43:14] [INFO] Manager manager1 set application APP-000005 to approved.
+[2026-07-14 00:43:57] [INFO] Manager manager1 set application APP-000004 to rejected.
+[2026-07-14 00:44:19] [INFO] User 'manager1' logged out.
+[2026-07-14 00:44:37] [INFO] User 'cashier1' (role 5) logged in.
+[2026-07-14 00:45:16] [INFO] Cashier cashier1 recorded payment PAY-000003 for loan LN-000001.
+[2026-07-14 00:45:26] [INFO] Cashier cashier1 recorded payment PAY-000004 for loan LN-000001.
+[2026-07-14 00:48:12] [INFO] User 'cashier1' logged out.
+[2026-07-14 00:48:17] [INFO] User 'manager1' (role 2) logged in.

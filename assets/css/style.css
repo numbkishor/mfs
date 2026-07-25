@@ -1,0 +1,301 @@
+/* =====================================================================
+   Microfinance Loan Management System — Custom Theme
+   Palette: deep ledger navy + warm brass accent + parchment surface
+   ===================================================================== */
+
+:root {
+    --mfs-navy-950: #0b1f2b;
+    --mfs-navy-900: #10293a;
+    --mfs-navy-800: #16384f;
+    --mfs-navy-700: #1e4a67;
+    --mfs-brass-500: #c98a3e;
+    --mfs-brass-600: #b6752b;
+    --mfs-parchment: #f6f3ec;
+    --mfs-paper: #ffffff;
+    --mfs-ink: #1c2b33;
+    --mfs-ink-soft: #5a6b74;
+    --mfs-border: #e3ddce;
+    --mfs-success: #2f7a4d;
+    --mfs-danger: #b3412c;
+    --mfs-warning: #c98a3e;
+    --mfs-info: #2e6f8e;
+    --mfs-sidebar-width: 258px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    background-color: var(--mfs-parchment);
+    color: var(--mfs-ink);
+    font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-size: 0.94rem;
+}
+
+h1, h2, h3, h4, h5, h6, .mfs-display {
+    font-family: 'Source Serif 4', Georgia, 'Times New Roman', serif;
+    color: var(--mfs-navy-950);
+    letter-spacing: 0.01em;
+}
+
+a { color: var(--mfs-navy-700); }
+a:hover { color: var(--mfs-brass-600); }
+
+/* ---------------------------------------------------------------
+   Auth (login) pages
+   --------------------------------------------------------------- */
+.mfs-auth-shell {
+    min-height: 100vh;
+    display: flex;
+    align-items: stretch;
+    background: var(--mfs-navy-950);
+}
+
+.mfs-auth-side {
+    display: none;
+    flex: 1.1;
+    background:
+        radial-gradient(circle at 20% 20%, rgba(201,138,62,0.18), transparent 55%),
+        linear-gradient(160deg, var(--mfs-navy-950) 0%, var(--mfs-navy-800) 100%);
+    color: #f4ede0;
+    padding: 4rem;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+@media (min-width: 992px) {
+    .mfs-auth-side { display: flex; }
+}
+
+.mfs-auth-side .brand-mark {
+    width: 52px;
+    height: 52px;
+    border: 2px solid var(--mfs-brass-500);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Source Serif 4', serif;
+    font-size: 1.4rem;
+    color: var(--mfs-brass-500);
+}
+
+.mfs-auth-side .ledger-lines span {
+    display: block;
+    height: 1px;
+    background: rgba(244,237,224,0.18);
+    margin: 0.85rem 0;
+}
+
+.mfs-auth-form-col {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--mfs-paper);
+    padding: 2rem;
+}
+
+.mfs-auth-card { width: 100%; max-width: 400px; }
+
+.mfs-auth-tabs {
+    display: flex;
+    border: 1px solid var(--mfs-border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 1.75rem;
+}
+
+.mfs-auth-tabs a {
+    flex: 1;
+    text-align: center;
+    padding: 0.65rem 0;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.85rem;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--mfs-ink-soft);
+    background: var(--mfs-parchment);
+}
+
+.mfs-auth-tabs a.active {
+    background: var(--mfs-navy-950);
+    color: #f4ede0;
+}
+
+/* ---------------------------------------------------------------
+   App shell: sidebar + topbar
+   --------------------------------------------------------------- */
+.mfs-shell { display: flex; min-height: 100vh; }
+
+.mfs-sidebar {
+    width: var(--mfs-sidebar-width);
+    flex-shrink: 0;
+    background: var(--mfs-navy-950);
+    color: #dfe7ec;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+.mfs-sidebar .brand {
+    padding: 1.25rem 1.35rem;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    font-family: 'Source Serif 4', serif;
+    font-size: 1.05rem;
+    color: #f4ede0;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.mfs-sidebar .brand .mark {
+    width: 34px;
+    height: 34px;
+    border: 1.5px solid var(--mfs-brass-500);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--mfs-brass-500);
+    font-size: 1rem;
+}
+
+.mfs-sidebar .nav-section-label {
+    text-transform: uppercase;
+    font-size: 0.68rem;
+    letter-spacing: 0.09em;
+    color: #7e93a1;
+    padding: 1rem 1.35rem 0.35rem;
+}
+
+.mfs-sidebar .nav-link {
+    color: #c7d3da;
+    padding: 0.55rem 1.35rem;
+    font-size: 0.87rem;
+    border-left: 3px solid transparent;
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+}
+
+.mfs-sidebar .nav-link:hover {
+    background: rgba(255,255,255,0.05);
+    color: #ffffff;
+}
+
+.mfs-sidebar .nav-link.active {
+    background: rgba(201,138,62,0.14);
+    color: #f4ede0;
+    border-left-color: var(--mfs-brass-500);
+    font-weight: 600;
+}
+
+.mfs-main { flex: 1; min-width: 0; }
+
+.mfs-topbar {
+    background: var(--mfs-paper);
+    border-bottom: 1px solid var(--mfs-border);
+    padding: 0.75rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.mfs-topbar .role-badge {
+    background: var(--mfs-navy-950);
+    color: #f4ede0;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 0.25rem 0.6rem;
+    border-radius: 20px;
+}
+
+.mfs-content { padding: 1.75rem; }
+
+.mfs-breadcrumb {
+    font-size: 0.8rem;
+    color: var(--mfs-ink-soft);
+    margin-bottom: 1rem;
+}
+
+/* ---------------------------------------------------------------
+   Cards / stat tiles
+   --------------------------------------------------------------- */
+.mfs-card {
+    background: var(--mfs-paper);
+    border: 1px solid var(--mfs-border);
+    border-radius: 10px;
+}
+
+.mfs-stat-tile {
+    background: var(--mfs-paper);
+    border: 1px solid var(--mfs-border);
+    border-left: 4px solid var(--mfs-navy-700);
+    border-radius: 8px;
+    padding: 1.1rem 1.25rem;
+}
+
+.mfs-stat-tile .stat-label {
+    font-size: 0.74rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--mfs-ink-soft);
+}
+
+.mfs-stat-tile .stat-value {
+    font-family: 'Source Serif 4', serif;
+    font-size: 1.65rem;
+    color: var(--mfs-navy-950);
+}
+
+.mfs-stat-tile.accent-brass { border-left-color: var(--mfs-brass-500); }
+.mfs-stat-tile.accent-success { border-left-color: var(--mfs-success); }
+.mfs-stat-tile.accent-danger { border-left-color: var(--mfs-danger); }
+
+/* ---------------------------------------------------------------
+   Tables
+   --------------------------------------------------------------- */
+.table.mfs-table thead th {
+    background: var(--mfs-navy-950);
+    color: #f4ede0;
+    font-size: 0.76rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-weight: 600;
+    border: none;
+    vertical-align: middle;
+}
+
+.table.mfs-table tbody tr:hover { background: #faf7f0; }
+
+/* Buttons using the brass accent */
+.btn-brass {
+    background-color: var(--mfs-brass-500);
+    border-color: var(--mfs-brass-500);
+    color: #241706;
+    font-weight: 600;
+}
+.btn-brass:hover { background-color: var(--mfs-brass-600); border-color: var(--mfs-brass-600); color: #241706; }
+
+.btn-navy {
+    background-color: var(--mfs-navy-950);
+    border-color: var(--mfs-navy-950);
+    color: #f4ede0;
+}
+.btn-navy:hover { background-color: var(--mfs-navy-800); border-color: var(--mfs-navy-800); color: #ffffff; }
+
+.badge-status-active, .badge-status-approved, .badge-status-paid { background: var(--mfs-success); }
+.badge-status-pending { background: var(--mfs-brass-500); color: #241706; }
+.badge-status-rejected, .badge-status-overdue, .badge-status-defaulted, .badge-status-blacklisted { background: var(--mfs-danger); }
+.badge-status-inactive, .badge-status-returned, .badge-status-closed, .badge-status-cancelled { background: #8a97a0; }
+
+@media (max-width: 991.98px) {
+    .mfs-sidebar { position: fixed; left: -100%; z-index: 1050; transition: left .2s ease; }
+    .mfs-sidebar.open { left: 0; }
+}

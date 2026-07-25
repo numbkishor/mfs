@@ -1,0 +1,17 @@
+[13-Jul-2026 23:02:19 Asia/Dhaka] PHP Fatal error:  Uncaught PDOException: SQLSTATE[HY093]: Invalid parameter number in C:\xampp\htdocs\mfs\includes\functions.php:288
+Stack trace:
+#0 C:\xampp\htdocs\mfs\includes\functions.php(288): PDOStatement->execute(Array)
+#1 C:\xampp\htdocs\mfs\admin\customers\index.php(12): fetch_customers_list('Polo', '', 1000000, 0)
+#2 {main}
+  thrown in C:\xampp\htdocs\mfs\includes\functions.php on line 288
+[13-Jul-2026 23:02:31 Asia/Dhaka] PHP Fatal error:  Uncaught PDOException: SQLSTATE[HY093]: Invalid parameter number in C:\xampp\htdocs\mfs\includes\functions.php:288
+Stack trace:
+#0 C:\xampp\htdocs\mfs\includes\functions.php(288): PDOStatement->execute(Array)
+#1 C:\xampp\htdocs\mfs\admin\customers\index.php(12): fetch_customers_list('abdul', '', 1000000, 0)
+#2 {main}
+  thrown in C:\xampp\htdocs\mfs\includes\functions.php on line 288
+[13-Jul-2026 23:21:58 Asia/Dhaka] PHP Fatal error:  Uncaught TypeError: e(): Argument #1 ($value) must be of type ?string, int given, called in C:\xampp\htdocs\mfs\admin\loan_types\edit.php on line 108 and defined in C:\xampp\htdocs\mfs\includes\functions.php:11
+Stack trace:
+#0 C:\xampp\htdocs\mfs\admin\loan_types\edit.php(108): e(3)
+#1 {main}
+  thrown in C:\xampp\htdocs\mfs\includes\functions.php on line 11

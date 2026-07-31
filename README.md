@@ -1,4 +1,4 @@
-# Microfinance Loan Management System
+# mfs
 
 A complete, production-quality Loan Management System built for a university
 DBMS project, engineered the way a real commercial application would be:

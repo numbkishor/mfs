@@ -1,0 +1,15 @@
+# Runtime logs (contain local paths and user activity)
+logs/*.log
+
+# User-uploaded files
+uploads/*
+!uploads/.gitkeep
+!uploads/.htaccess
+
+# OS / editor cruft
+Thumbs.db
+desktop.ini
+.DS_Store
+*.swp
+.vscode/
+.idea/

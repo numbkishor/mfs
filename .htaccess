@@ -1,0 +1,12 @@
+# Microfinance Loan Management System
+Options -Indexes
+DirectoryIndex index.php
+
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+</IfModule>
+
+<FilesMatch "\.(sql|log|md)$">
+    Require all denied
+</FilesMatch>

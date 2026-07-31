@@ -39,3 +39,6 @@
 [2026-07-14 00:45:26] [INFO] Cashier cashier1 recorded payment PAY-000004 for loan LN-000001.
 [2026-07-14 00:48:12] [INFO] User 'cashier1' logged out.
 [2026-07-14 00:48:17] [INFO] User 'manager1' (role 2) logged in.
+[2026-07-31 21:08:32] [INFO] User 'cashier1' (role 5) logged in.
+[2026-07-31 21:09:03] [INFO] User 'cashier1' logged out.
+[2026-07-31 21:09:42] [INFO] User 'officer1' (role 3) logged in.

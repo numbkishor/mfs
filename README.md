@@ -230,7 +230,7 @@ credentials in the same transaction).
 
 ---
 
-## 8. User Manual (quick tour)
+## 8. User Manual 
 
 1. **Employees** sign in at the Employee Login tab with the username and
    password issued by an Administrator.

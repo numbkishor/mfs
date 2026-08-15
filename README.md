@@ -58,13 +58,15 @@ dependencies outside the PHP core extensions (`pdo_mysql`, `mbstring`,
 ```
 microfinance-lms/
 ├── assets/                 CSS, JS, images (never PHP)
-│   ├── css/style.css       Custom theme layered on Bootstrap 5
-│   └── js/app.js           Sidebar toggle, validation, EMI calculator
+│   ├── css/style.css       Minimal theme (light + dark) over Bootstrap 5
+│   └── js/app.js           Theme + sidebar, password reveal, validation, EMI
 ├── auth/                   Login (employee + customer), logout
 ├── config/                 config.php (constants), database.php (PDO)
 ├── includes/               Shared PHP: session, auth/RBAC, CSRF,
 │   │                       functions, loan/EMI/cash-flow helpers,
-│   │                       header/sidebar/footer layout, partials/
+│   │                       head/header/sidebar/footer layout, partials/
+│   ├── head.php            Shared <head> (meta, assets, theme bootstrap)
+│   ├── auth_view.php       Shared markup for both sign-in screens
 │   └── partials/           Reusable list-table fragments
 ├── admin/                  Administrator area (full access)
 │   ├── customers/          View/search all customers
@@ -108,11 +110,12 @@ framework:
   `fetch_applications_list()`, `fetch_loans_list()`) and business-logic
   helpers in `includes/loan_helpers.php` (EMI calculation, amortization
   schedule generation, live cash-flow aggregation).
-- **View** — `includes/header.php` / `sidebar.php` / `footer.php` form a
-  shared page shell; `includes/partials/*.php` hold reusable table
-  fragments (customers, applications, loans) so the same markup isn't
-  duplicated across the Administrator, Manager and Loan Officer versions
-  of a page.
+- **View** — `includes/head.php` / `header.php` / `sidebar.php` /
+  `footer.php` form a shared page shell, and `includes/auth_view.php`
+  holds the sign-in card used by both login pages;
+  `includes/partials/*.php` hold reusable table fragments (customers,
+  applications, loans) so the same markup isn't duplicated across the
+  Administrator, Manager and Loan Officer versions of a page.
 - **Controller** — each `.php` file under a role folder is a thin
   controller: it validates input, talks to the database, and then
   includes the shared view partials. POST handlers always verify CSRF
@@ -128,6 +131,31 @@ logged-in officer) and passes different permission flags (`$canEdit`,
 `$canDelete`, `$showReview`) into the shared partial. This keeps the
 required "one file per module per role" folder structure while avoiding
 duplicated logic.
+
+### 4.1 Interface
+
+The UI is deliberately minimal: one ink colour, one brass accent and
+neutral surfaces, with Bootstrap 5 supplying the grid and components and
+`assets/css/style.css` restyling them through CSS custom properties.
+
+- **Centred sign-in** — both login screens render a single card centred
+  in the viewport (`includes/auth_view.php`), with a segmented
+  Employee/Customer switch, a password reveal button and a Caps Lock
+  hint.
+- **Light and dark** — every colour resolves through a variable, so the
+  theme toggle in the top bar (and above the login card) swaps the whole
+  interface. The choice is stored in `localStorage` and applied in
+  `includes/head.php` before first paint, so there is no flash. With no
+  stored choice the system preference wins.
+- **Adaptive shell** — the sidebar is a full menu on desktop, collapses
+  to an icon rail (remembered between visits), and becomes a drawer with
+  a backdrop below 992px, closing on Escape, on backdrop click or after
+  navigating.
+- **Compatibility** — system font stack (no webfont download), ES5
+  JavaScript that degrades to plain HTML if it fails to load, keyboard
+  focus rings, a skip link, `prefers-reduced-motion` and
+  `prefers-contrast` support, safe-area padding for notched phones, and
+  print styles that drop the chrome.
 
 ---
 

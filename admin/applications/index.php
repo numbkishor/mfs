@@ -8,7 +8,7 @@ require_role(ROLE_ADMIN);
 
 $status = clean($_GET['status'] ?? 'pending');
 
-$countRows = fetch_applications_list($status, null, 1000000, 0);
+$countRows = fetch_applications_list($status, null, 0, 0);
 $pg = paginate($countRows['total'], 10);
 $result = fetch_applications_list($status, null, $pg['limit'], $pg['offset']);
 

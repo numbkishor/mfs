@@ -9,7 +9,7 @@ require_role(ROLE_OFFICER);
 $status = clean($_GET['status'] ?? '');
 $user = current_user();
 
-$countRows = fetch_loans_list($status, $user['user_id'], 1000000, 0);
+$countRows = fetch_loans_list($status, $user['user_id'], 0, 0);
 $pg = paginate($countRows['total'], 10);
 $result = fetch_loans_list($status, $user['user_id'], $pg['limit'], $pg['offset']);
 

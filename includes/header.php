@@ -3,72 +3,104 @@
 declare(strict_types=1);
 
 /**
+ * App shell: opens the document, sidebar, topbar and content region.
+ * Every page closes it by requiring includes/footer.php.
+ *
  * Expects the including page to have already defined:
  *   $pageTitle   (string) browser tab / H1 title
  *   $activeMenu  (string) key matching a sidebar link, for highlighting
  *   $breadcrumb  (array)  ['Label' => url|null, ...] optional
  *
- * And to have already required includes/auth.php + called require_login()/require_role().
+ * And to have required includes/bootstrap.php then called
+ * require_login() / require_role().
  */
 
 $user = current_user();
-$pageTitle = $pageTitle ?? APP_NAME;
+
+// Reaching the shell without a session means an auth guard was skipped;
+// fail closed rather than fataling on a null $user.
+if ($user === null) {
+    redirect('/auth/login_employee.php');
+}
+
+$pageTitle  = $pageTitle ?? APP_NAME;
 $activeMenu = $activeMenu ?? '';
 $breadcrumb = $breadcrumb ?? [];
+
+$initials = '';
+foreach (preg_split('/\s+/', trim((string) $user['full_name'])) ?: [] as $part) {
+    if ($part !== '' && mb_strlen($initials) < 2) {
+        $initials .= mb_strtoupper(mb_substr($part, 0, 1));
+    }
+}
+$initials = $initials !== '' ? $initials : '?';
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= e($pageTitle) ?> · <?= e(APP_NAME) ?></title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link href="<?= e(BASE_URL) ?>/assets/css/style.css" rel="stylesheet">
+<?php require __DIR__ . '/head.php'; ?>
 </head>
 <body>
-<div class="mfs-shell">
+<a class="mfs-skip-link" href="#mfs-content">Skip to content</a>
+
+<div class="mfs-shell" id="mfsShell">
     <?php include __DIR__ . '/sidebar.php'; ?>
+    <div class="mfs-backdrop" id="mfsBackdrop" aria-hidden="true"></div>
 
     <div class="mfs-main">
         <header class="mfs-topbar">
-            <div class="d-flex align-items-center gap-3">
-                <button id="sidebarToggle" class="btn btn-sm btn-outline-secondary d-lg-none" type="button" aria-label="Toggle menu">
-                    <i class="bi bi-list"></i>
+            <div class="d-flex align-items-center gap-2 gap-sm-3 min-w-0">
+                <button id="sidebarToggle" class="mfs-icon-btn" type="button"
+                        aria-label="Toggle navigation" aria-expanded="false" aria-controls="mfsSidebar"
+                        title="Toggle navigation (\)">
+                    <i class="bi bi-list" aria-hidden="true"></i>
                 </button>
-                <div>
-                    <h1 class="h5 mb-0"><?= e($pageTitle) ?></h1>
+                <div class="min-w-0">
+                    <h1><?= e($pageTitle) ?></h1>
                     <?php if (!empty($breadcrumb)): ?>
-                        <nav class="mfs-breadcrumb">
-                            <a href="<?= e(BASE_URL) ?><?= e(role_home_path($user['role_id'])) ?>">Dashboard</a>
+                        <nav class="mfs-breadcrumb" aria-label="Breadcrumb">
+                            <a href="<?= e(BASE_URL . role_home_path((int) $user['role_id'])) ?>">Dashboard</a>
                             <?php foreach ($breadcrumb as $label => $url): ?>
-                                &nbsp;/&nbsp;
+                                <span class="sep" aria-hidden="true">/</span>
                                 <?php if ($url): ?>
                                     <a href="<?= e(BASE_URL . $url) ?>"><?= e($label) ?></a>
                                 <?php else: ?>
-                                    <span><?= e($label) ?></span>
+                                    <span aria-current="page"><?= e($label) ?></span>
                                 <?php endif; ?>
                             <?php endforeach; ?>
                         </nav>
                     <?php endif; ?>
                 </div>
             </div>
-            <div class="d-flex align-items-center gap-3">
+
+            <div class="d-flex align-items-center gap-2">
                 <span class="role-badge"><?= e($user['role_name']) ?></span>
+
+                <button type="button" class="mfs-icon-btn" data-theme-toggle aria-label="Switch colour theme">
+                    <i class="bi" data-theme-icon aria-hidden="true"></i>
+                </button>
+
                 <div class="dropdown">
-                    <button class="btn btn-sm btn-light dropdown-toggle d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown">
-                        <i class="bi bi-person-circle"></i> <?= e($user['full_name']) ?>
+                    <button class="mfs-user-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span class="mfs-avatar" aria-hidden="true"><?= e($initials) ?></span>
+                        <span class="name"><?= e($user['full_name']) ?></span>
+                        <i class="bi bi-chevron-down small" aria-hidden="true"></i>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item disabled" href="#"><?= e($user['username']) ?></a></li>
+                        <li class="px-2 py-1">
+                            <div class="small fw-semibold"><?= e($user['full_name']) ?></div>
+                            <div class="small text-muted"><?= e($user['username']) ?></div>
+                        </li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item text-danger" href="<?= e(BASE_URL) ?>/auth/logout.php"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                        <li>
+                            <a class="dropdown-item text-danger" href="<?= e(BASE_URL) ?>/auth/logout.php">
+                                <i class="bi bi-box-arrow-right me-2" aria-hidden="true"></i>Logout
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </div>
         </header>
 
-        <main class="mfs-content">
+        <main class="mfs-content" id="mfs-content">
             <?php render_flash(); ?>

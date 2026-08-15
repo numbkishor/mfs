@@ -54,7 +54,13 @@ if (!$line) {
 
 $remaining = round((float) $line['total_due'] - (float) $line['amount_paid'], 2);
 $errors = [];
-$old = ['amount_paid' => (string) $remaining, 'payment_date' => date('Y-m-d'), 'payment_method' => 'cash', 'reference_no' => ''];
+$old = [
+    'amount_paid'    => (string) $remaining,
+    'payment_date'   => date('Y-m-d'),
+    'payment_method' => 'cash',
+    'reference_no'   => '',
+    'remarks'        => '',
+];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_verify();
@@ -83,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $insert->execute([
                 'code' => $paymentCode, 'loan_id' => $loanId, 'schedule_id' => $line['schedule_id'],
                 'amount' => $old['amount_paid'], 'date' => $old['payment_date'], 'method' => $old['payment_method'],
-                'ref' => $old['reference_no'] ?: null, 'by' => $user['user_id'], 'remarks' => clean($_POST['remarks'] ?? '') ?: null,
+                'ref' => $old['reference_no'] ?: null, 'by' => $user['user_id'], 'remarks' => $old['remarks'] ?: null,
             ]);
 
             $newPaid = round((float) $line['amount_paid'] + (float) $old['amount_paid'], 2);
@@ -143,21 +149,21 @@ require_once __DIR__ . '/../../includes/header.php';
             <input type="date" name="payment_date" class="form-control" required value="<?= e($old['payment_date']) ?>">
         </div>
         <div class="mb-3">
-            <label class="form-label">Method</label>
-            <select name="payment_method" class="form-select">
-                <option value="cash">Cash</option>
-                <option value="bank_transfer">Bank Transfer</option>
-                <option value="mobile_wallet">Mobile Wallet</option>
-                <option value="cheque">Cheque</option>
+            <label class="form-label" for="payment_method">Method</label>
+            <select id="payment_method" name="payment_method" class="form-select">
+                <?php foreach (['cash' => 'Cash', 'bank_transfer' => 'Bank Transfer',
+                                'mobile_wallet' => 'Mobile Wallet', 'cheque' => 'Cheque'] as $value => $label): ?>
+                    <option value="<?= e($value) ?>" <?= $old['payment_method'] === $value ? 'selected' : '' ?>><?= e($label) ?></option>
+                <?php endforeach; ?>
             </select>
         </div>
         <div class="mb-3">
-            <label class="form-label">Reference No.</label>
-            <input type="text" name="reference_no" class="form-control" value="<?= e($old['reference_no']) ?>">
+            <label class="form-label" for="reference_no">Reference No.</label>
+            <input type="text" id="reference_no" name="reference_no" class="form-control" value="<?= e($old['reference_no']) ?>">
         </div>
         <div class="mb-3">
-            <label class="form-label">Remarks</label>
-            <textarea name="remarks" class="form-control" rows="2"></textarea>
+            <label class="form-label" for="remarks">Remarks</label>
+            <textarea id="remarks" name="remarks" class="form-control" rows="2"><?= e($old['remarks']) ?></textarea>
         </div>
         <button type="submit" class="btn btn-brass px-4">Record Payment</button>
     </form>

@@ -4,12 +4,19 @@ declare(strict_types=1);
 
 /** Builds the sidebar menu for the current user's role. */
 
-$roleId = $user['role_id'];
+$roleId = (int) $user['role_id'];
 
-function nav_link(string $key, string $active, string $url, string $icon, string $label): void
-{
-    $isActive = $key === $active ? ' active' : '';
-    echo '<a class="nav-link' . $isActive . '" href="' . e(BASE_URL . $url) . '"><i class="bi ' . e($icon) . '"></i> ' . e($label) . '</a>';
+// Guarded so a double include can never fatal on a redeclare.
+if (!function_exists('nav_link')) {
+    function nav_link(string $key, string $active, string $url, string $icon, string $label): void
+    {
+        $isActive = $key === $active ? ' active' : '';
+        $current = $isActive ? ' aria-current="page"' : '';
+        echo '<a class="nav-link' . $isActive . '" href="' . e(BASE_URL . $url) . '" title="' . e($label) . '"' . $current . '>'
+            . '<i class="bi ' . e($icon) . '" aria-hidden="true"></i>'
+            . '<span>' . e($label) . '</span>'
+            . '</a>';
+    }
 }
 
 $menus = [
@@ -65,12 +72,15 @@ $menus = [
 
 $items = $menus[$roleId] ?? [];
 ?>
-<aside class="mfs-sidebar">
+<aside class="mfs-sidebar" id="mfsSidebar">
     <div class="brand">
-        <span class="mark">M</span>
-        <span>Microfinance<br><small style="font-size:.65rem; letter-spacing:.08em; color:#9fb0ba;">LOAN MANAGEMENT</small></span>
+        <span class="mfs-brand-mark" aria-hidden="true">M</span>
+        <span class="brand-text">
+            <strong>Microfinance</strong>
+            <small>LOAN MANAGEMENT</small>
+        </span>
     </div>
-    <nav class="py-2">
+    <nav aria-label="Main navigation">
         <?php foreach ($items as $item): ?>
             <?php if ($item[0] === 'section'): ?>
                 <div class="nav-section-label"><?= e($item[3]) ?></div>

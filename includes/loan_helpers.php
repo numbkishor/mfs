@@ -31,6 +31,30 @@ function calculate_emi(float $principal, float $annualRatePct, int $months): flo
 }
 
 /**
+ * Add whole months to a date, clamping to the last day of the target month.
+ *
+ * PHP's native "+1 month" overflows (31 Jan + 1 month = 3 Mar), and applying
+ * it repeatedly makes every later due date drift. Anchoring on the original
+ * start date and clamping keeps a 31st-of-the-month loan landing on the 28th,
+ * 30th or 31st as appropriate.
+ */
+function add_months(string $date, int $months): string
+{
+    $start = new DateTimeImmutable($date);
+    $day = (int) $start->format('j');
+
+    // Move to the 1st first so the month arithmetic can never overflow.
+    $target = $start->modify('first day of this month')->modify("+{$months} months");
+    $daysInTarget = (int) $target->format('t');
+
+    return $target->setDate(
+        (int) $target->format('Y'),
+        (int) $target->format('n'),
+        min($day, $daysInTarget)
+    )->format('Y-m-d');
+}
+
+/**
  * Build a full reducing-balance amortization schedule.
  *
  * @return array<int, array{installment_no:int, due_date:string, principal_due:float, interest_due:float, total_due:float}>
@@ -41,10 +65,9 @@ function build_amortization_schedule(float $principal, float $annualRatePct, int
     $emi = calculate_emi($principal, $annualRatePct, $months);
     $balance = $principal;
     $schedule = [];
-    $dueTimestamp = strtotime($startDate);
 
     for ($i = 1; $i <= $months; $i++) {
-        $dueTimestamp = strtotime('+1 month', $dueTimestamp);
+        $dueDate = add_months($startDate, $i);
         $interestDue = round($balance * $monthlyRate, 2);
         $principalDue = round($emi - $interestDue, 2);
 
@@ -59,7 +82,7 @@ function build_amortization_schedule(float $principal, float $annualRatePct, int
 
         $schedule[] = [
             'installment_no' => $i,
-            'due_date'       => date('Y-m-d', $dueTimestamp),
+            'due_date'       => $dueDate,
             'principal_due'  => $principalDue,
             'interest_due'   => $interestDue,
             'total_due'      => $totalDue,

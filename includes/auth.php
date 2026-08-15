@@ -59,7 +59,9 @@ function require_role(int ...$roleIds): void
     $user = current_user();
 
     if ($user === null || !in_array($user['role_id'], $roleIds, true)) {
-        http_response_code(403);
+        // No http_response_code(403) here: setting a 4xx status alongside a
+        // Location header produces a redirect browsers refuse to follow, so
+        // the user was left staring at a blank page. Bounce them home instead.
         flash('danger', 'You do not have permission to access that page.');
         redirect(role_home_path($user['role_id'] ?? 0));
     }
@@ -174,9 +176,90 @@ function establish_session(array $user): void
     app_log("User '{$user['username']}' (role {$user['role_id']}) logged in.");
 }
 
+// -----------------------------------------------------------------
+// "Keep me signed in". The cookie carries "<user_id>:<token>" so the
+// stored bcrypt hash can be looked up by id instead of scanning every
+// user row. The token is rotated on each successful auto-login.
+// -----------------------------------------------------------------
+
+const REMEMBER_COOKIE = 'mfs_remember';
+
+/** Issue a fresh remember-me cookie and persist its hash against the user. */
+function remember_user(int $userId): void
+{
+    $token = bin2hex(random_bytes(32));
+
+    $pdo = Database::getConnection();
+    $stmt = $pdo->prepare('UPDATE users SET remember_token = :t WHERE user_id = :id');
+    $stmt->execute(['t' => password_hash($token, PASSWORD_BCRYPT), 'id' => $userId]);
+
+    setcookie(REMEMBER_COOKIE, $userId . ':' . $token, [
+        'expires'  => time() + REMEMBER_ME_LIFETIME,
+        'path'     => '/',
+        'secure'   => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
+}
+
+/** Clear the cookie and invalidate the stored token. */
+function forget_user(?int $userId = null): void
+{
+    if ($userId !== null) {
+        $pdo = Database::getConnection();
+        $pdo->prepare('UPDATE users SET remember_token = NULL WHERE user_id = :id')->execute(['id' => $userId]);
+    }
+
+    setcookie(REMEMBER_COOKIE, '', [
+        'expires'  => time() - 42000,
+        'path'     => '/',
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
+}
+
+/**
+ * Restore a session from a valid remember-me cookie. Called on every
+ * request from bootstrap.php, and is a no-op when already signed in or
+ * when no (or an invalid) cookie is present.
+ */
+function attempt_remember_login(): void
+{
+    if (is_logged_in() || empty($_COOKIE[REMEMBER_COOKIE])) {
+        return;
+    }
+
+    $parts = explode(':', (string) $_COOKIE[REMEMBER_COOKIE], 2);
+    if (count($parts) !== 2 || !ctype_digit($parts[0]) || $parts[1] === '') {
+        forget_user();
+        return;
+    }
+
+    [$userId, $token] = $parts;
+
+    $pdo = Database::getConnection();
+    $stmt = $pdo->prepare(
+        'SELECT u.user_id, u.role_id, r.role_name, u.full_name, u.username, u.remember_token, u.status
+         FROM users u INNER JOIN roles r ON r.role_id = u.role_id
+         WHERE u.user_id = :id LIMIT 1'
+    );
+    $stmt->execute(['id' => (int) $userId]);
+    $user = $stmt->fetch();
+
+    if (!$user || $user['status'] !== 'active' || empty($user['remember_token'])
+        || !password_verify($token, $user['remember_token'])) {
+        forget_user();
+        return;
+    }
+
+    establish_session($user);
+    remember_user((int) $user['user_id']); // rotate the token on every use
+}
+
 function logout(): void
 {
     $username = $_SESSION['username'] ?? 'unknown';
+    forget_user(isset($_SESSION['user_id']) ? (int) $_SESSION['user_id'] : null);
     $_SESSION = [];
 
     if (ini_get('session.use_cookies')) {

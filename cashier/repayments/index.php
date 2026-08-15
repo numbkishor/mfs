@@ -23,8 +23,11 @@ if (in_array($status, ['pending', 'partial', 'overdue', 'paid'], true)) {
 }
 
 if ($search !== '') {
-    $where .= ' AND (l.loan_code LIKE :q OR uc.full_name LIKE :q OR c.customer_code LIKE :q)';
-    $params['q'] = '%' . $search . '%';
+    // One named placeholder per LIKE: native prepares bind each exactly once.
+    $where .= ' AND (l.loan_code LIKE :q1 OR uc.full_name LIKE :q2 OR c.customer_code LIKE :q3)';
+    $params['q1'] = '%' . $search . '%';
+    $params['q2'] = $params['q1'];
+    $params['q3'] = $params['q1'];
 }
 
 $stmt = $pdo->prepare(

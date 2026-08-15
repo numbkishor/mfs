@@ -159,19 +159,51 @@ require_once __DIR__ . '/../includes/header.php';
     </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script src="<?= e(BASE_URL) ?>/assets/vendor/chartjs/chart.umd.min.js?v=<?= e(APP_VERSION) ?>"></script>
 <script>
-new Chart(document.getElementById('cashFlowChart'), {
-    type: 'bar',
-    data: {
-        labels: <?= json_encode(array_column($monthly, 'month')) ?>,
-        datasets: [
-            { label: 'Disbursed', data: <?= json_encode(array_column($monthly, 'disbursed')) ?>, backgroundColor: '#16384f' },
-            { label: 'Repaid', data: <?= json_encode(array_column($monthly, 'repaid')) ?>, backgroundColor: '#c98a3e' }
-        ]
-    },
-    options: { responsive: true, scales: { y: { beginAtZero: true } } }
-});
+/* Chart colours are read from the theme tokens so the chart matches
+   whichever theme (light or dark) is active. */
+(function () {
+    var canvas = document.getElementById('cashFlowChart');
+    if (!canvas || typeof Chart === 'undefined') return; // chart is optional
+
+    var css = getComputedStyle(document.documentElement);
+    var token = function (name) { return css.getPropertyValue(name).trim(); };
+
+    var ink = token('--mfs-ink');
+    var muted = token('--mfs-ink-soft');
+    var grid = token('--mfs-border');
+
+    var chart = new Chart(canvas, {
+        type: 'bar',
+        data: {
+            labels: <?= json_encode(array_column($monthly, 'month')) ?>,
+            datasets: [
+                { label: 'Disbursed', data: <?= json_encode(array_column($monthly, 'disbursed')) ?>, backgroundColor: ink, borderRadius: 4 },
+                { label: 'Repaid', data: <?= json_encode(array_column($monthly, 'repaid')) ?>, backgroundColor: token('--mfs-accent'), borderRadius: 4 }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { labels: { color: muted, boxWidth: 12, usePointStyle: true } } },
+            scales: {
+                x: { ticks: { color: muted }, grid: { display: false } },
+                y: { beginAtZero: true, ticks: { color: muted }, grid: { color: grid } }
+            }
+        }
+    });
+
+    document.addEventListener('mfs:themechange', function () {
+        css = getComputedStyle(document.documentElement);
+        chart.data.datasets[0].backgroundColor = token('--mfs-ink');
+        chart.data.datasets[1].backgroundColor = token('--mfs-accent');
+        chart.options.plugins.legend.labels.color = token('--mfs-ink-soft');
+        chart.options.scales.x.ticks.color = token('--mfs-ink-soft');
+        chart.options.scales.y.ticks.color = token('--mfs-ink-soft');
+        chart.options.scales.y.grid.color = token('--mfs-border');
+        chart.update();
+    });
+})();
 </script>
 
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>

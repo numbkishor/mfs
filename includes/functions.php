@@ -6,21 +6,32 @@ require_once __DIR__ . '/session.php';
 require_once __DIR__ . '/../config/database.php';
 
 /**
- * Escape a string for safe HTML output.
+ * Escape a value for safe HTML output.
+ *
+ * Accepts mixed deliberately: every caller runs under strict_types, and
+ * PDO hands back real ints/floats for numeric columns, so a ?string
+ * signature turned every `e($row['some_int'])` into a fatal TypeError.
+ * Arrays/objects render as an empty string rather than crashing.
  */
-function e(?string $value): string
+function e(mixed $value = null): string
 {
-    return htmlspecialchars($value ?? '', ENT_QUOTES, 'UTF-8');
+    if (is_array($value) || (is_object($value) && !$value instanceof Stringable)) {
+        return '';
+    }
+
+    return htmlspecialchars((string) ($value ?? ''), ENT_QUOTES, 'UTF-8');
 }
 
 /**
- * Trim and strip a value coming from user input. Does NOT escape for
- * HTML output — use e() at render time instead so data stored/compared
- * stays clean.
+ * Trim a value coming from user input. Does NOT escape for HTML output —
+ * use e() at render time instead so data stored/compared stays clean.
+ *
+ * Request values can legitimately arrive as arrays (`?status[]=a`), which
+ * must collapse to an empty string instead of raising a TypeError.
  */
-function clean(?string $value): string
+function clean(mixed $value = null): string
 {
-    return trim($value ?? '');
+    return is_scalar($value) ? trim((string) $value) : '';
 }
 
 /**
@@ -63,10 +74,12 @@ function render_flash(): void
 
 /**
  * Format a numeric amount as currency (BDT Taka by default).
+ * Nullable columns (an unset monthly_income, a NULL SUM) format as 0.00
+ * rather than raising a TypeError.
  */
-function money(float|string $amount, string $symbol = '৳'): string
+function money(mixed $amount, string $symbol = '৳'): string
 {
-    return $symbol . ' ' . number_format((float) $amount, 2);
+    return $symbol . ' ' . number_format(is_numeric($amount) ? (float) $amount : 0.0, 2);
 }
 
 /**
@@ -273,8 +286,15 @@ function fetch_customers_list(string $search, string $status, int $limit, int $o
     $params = [];
 
     if ($search !== '') {
-        $where[] = '(u.full_name LIKE :search OR c.customer_code LIKE :search OR c.national_id LIKE :search OR u.phone LIKE :search)';
-        $params['search'] = '%' . $search . '%';
+        // Native prepared statements (ATTR_EMULATE_PREPARES => false) bind each
+        // placeholder exactly once, so every LIKE needs its own named param.
+        $where[] = '(u.full_name LIKE :search1 OR c.customer_code LIKE :search2'
+            . ' OR c.national_id LIKE :search3 OR u.phone LIKE :search4)';
+        $needle = '%' . $search . '%';
+        $params['search1'] = $needle;
+        $params['search2'] = $needle;
+        $params['search3'] = $needle;
+        $params['search4'] = $needle;
     }
 
     if ($status !== '' && in_array($status, ['active', 'inactive', 'blacklisted'], true)) {
@@ -310,22 +330,55 @@ function fetch_customers_list(string $search, string $status, int $limit, int $o
 
 /**
  * Render Bootstrap pagination links, preserving existing query params.
+ *
+ * Only a window of pages around the current one is printed (plus first/last
+ * and prev/next), so a large result set can no longer spill hundreds of
+ * numbers across the page.
  */
-function render_pagination(int $currentPage, int $totalPages): void
+function render_pagination(int $currentPage, int $totalPages, int $window = 2): void
 {
     if ($totalPages <= 1) {
         return;
     }
 
     $params = $_GET;
-    echo '<nav aria-label="Page navigation"><ul class="pagination justify-content-center">';
+    $link = static function (int $page) use ($params): string {
+        $params['page'] = $page;
+        return e('?' . http_build_query($params));
+    };
 
-    for ($i = 1; $i <= $totalPages; $i++) {
-        $params['page'] = $i;
-        $url = '?' . http_build_query($params);
-        $active = $i === $currentPage ? ' active' : '';
-        echo "<li class=\"page-item{$active}\"><a class=\"page-link\" href=\"" . e($url) . "\">{$i}</a></li>";
+    // Always show page 1 and the last page; fill the middle around $currentPage.
+    $pages = [1, $totalPages];
+    for ($i = $currentPage - $window; $i <= $currentPage + $window; $i++) {
+        if ($i >= 1 && $i <= $totalPages) {
+            $pages[] = $i;
+        }
     }
+    $pages = array_values(array_unique($pages));
+    sort($pages);
+
+    echo '<nav aria-label="Page navigation" class="mfs-pager"><ul class="pagination justify-content-center mb-0">';
+
+    $prevDisabled = $currentPage <= 1 ? ' disabled' : '';
+    echo '<li class="page-item' . $prevDisabled . '"><a class="page-link" href="'
+        . ($currentPage > 1 ? $link($currentPage - 1) : '#') . '" aria-label="Previous"'
+        . ($currentPage <= 1 ? ' tabindex="-1" aria-disabled="true"' : '') . '>&laquo;</a></li>';
+
+    $previous = 0;
+    foreach ($pages as $page) {
+        if ($previous && $page - $previous > 1) {
+            echo '<li class="page-item disabled"><span class="page-link">…</span></li>';
+        }
+        $active = $page === $currentPage ? ' active' : '';
+        echo '<li class="page-item' . $active . '"><a class="page-link" href="' . $link($page) . '"'
+            . ($active ? ' aria-current="page"' : '') . '>' . $page . '</a></li>';
+        $previous = $page;
+    }
+
+    $nextDisabled = $currentPage >= $totalPages ? ' disabled' : '';
+    echo '<li class="page-item' . $nextDisabled . '"><a class="page-link" href="'
+        . ($currentPage < $totalPages ? $link($currentPage + 1) : '#') . '" aria-label="Next"'
+        . ($currentPage >= $totalPages ? ' tabindex="-1" aria-disabled="true"' : '') . '>&raquo;</a></li>';
 
     echo '</ul></nav>';
 }

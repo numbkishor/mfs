@@ -25,6 +25,10 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) >
     $_SESSION = [];
     session_destroy();
     session_start();
+    // Restarting reuses the old session id, which leaves the expired id
+    // valid and usable for fixation. Issue a fresh one.
+    session_regenerate_id(true);
+    $_SESSION = [];
 }
 $_SESSION['last_activity'] = time();
 

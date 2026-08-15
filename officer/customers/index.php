@@ -9,7 +9,7 @@ require_role(ROLE_OFFICER);
 $search = clean($_GET['search'] ?? '');
 $status = clean($_GET['status'] ?? '');
 
-$countRows = fetch_customers_list($search, $status, 1000000, 0);
+$countRows = fetch_customers_list($search, $status, 0, 0);
 $pg = paginate($countRows['total'], 10);
 $result = fetch_customers_list($search, $status, $pg['limit'], $pg['offset']);
 

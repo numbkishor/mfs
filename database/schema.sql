@@ -92,7 +92,7 @@ CREATE TABLE loan_types (
 ) ENGINE=InnoDB;
 
 
--- Table: loan_applications
+-- Table: Making table for loan_applications
 
 
 
@@ -126,7 +126,7 @@ CREATE TABLE loan_applications (
 ) ENGINE=InnoDB;
 
 
--- Table: loans (created once an application is approved)
+-- Table: creating table for loans (created once an application is approved)
 
 
 CREATE TABLE loans (
@@ -160,7 +160,7 @@ CREATE TABLE loans (
 ) ENGINE=InnoDB;
 
 
--- Table: disbursements (money paid out to the customer for a loan)
+-- Table: disbursements (money paid out to the customer for a loan). This table is will work once the loan is approved. This table will be used by the Cashier 
 
 
 CREATE TABLE disbursements (
@@ -181,7 +181,7 @@ CREATE TABLE disbursements (
 ) ENGINE=InnoDB;
 
 
--- Table: repayment_schedules (EMI schedule generated per loan)
+-- Table: generating repayment_schedules (EMI schedule generated per loan)
 
 
 CREATE TABLE repayment_schedules (
@@ -205,7 +205,7 @@ CREATE TABLE repayment_schedules (
 ) ENGINE=InnoDB;
 
 
--- Table: payments (actual money received against a schedule line)
+-- Table: generating table for the payments (actual money received against a schedule line)
 
 
 
